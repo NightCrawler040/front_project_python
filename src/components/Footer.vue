@@ -12,10 +12,13 @@
             <ul class="nav flex-column">
               <li class="nav-item mb-2"><RouterLink to="/" class="nav-link p-0 text-muted">Home</RouterLink></li>
               <li class="nav-item mb-2"><RouterLink to="/about" class="nav-link p-0 text-muted">About</RouterLink></li>
-              <li class="nav-item mb-2"><RouterLink to="/products" class="nav-link p-0 text-muted">Products</RouterLink></li></ul>
+              <li class="nav-item mb-2"><RouterLink to="/products" class="nav-link p-0 text-muted">Products</RouterLink></li>
+              <li class="nav-item mb-2"><RouterLink to="/cart" class="nav-link p-0 text-muted">Cart</RouterLink></li>
+              <li class="nav-item mb-2"><RouterLink to="/wishlist" class="nav-link p-0 text-muted">Wishlist</RouterLink></li></ul>
+
           </div>
 
-          <div class="col-md-5 offset-md-1 mb-3">
+          <div class="col-md-5 offset-md-1 mb-3" style="transform: translateX(450px)">
             <form>
               <h5>Subscribe to our newsletter</h5>
               <p>Monthly digest of what's new and exciting from us.</p>

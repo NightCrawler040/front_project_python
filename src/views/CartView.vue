@@ -46,7 +46,7 @@ onMounted(async () => {
                                         </div>
                                         <div>
                                             <div v-if="cart.length > 0">
-                                                <button @click="clearCart()">Clear cart</button>
+                                                <button @click="clearCart()" style="border: none;">Clear cart</button>
                                             </div>
                                         </div>
                                     </div>
@@ -61,7 +61,7 @@ onMounted(async () => {
                                                         <div>
                                                             <img :src="item.image" class="img-fluid rounded-3" :alt="item.title" style="width: 65px" />
                                                         </div>
-                                                        <div class="ms-3">
+                                                        <div class="ms-3 ">
                                                             <RouterLink :to="'products/' + item.id"><h6 >{{ item.title }}</h6> </RouterLink>
                                                         </div>
                                                     </div>
@@ -70,7 +70,7 @@ onMounted(async () => {
                                                             <h6 class="mb-0">{{item.price}}₸</h6>
                                                         </div>
                                                         <button @click="removeItem(item.id)">
-                                                            <i class="bi bi-trash-fill">
+                                                            <i class="bi bi-trash-fill ">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                      height="16" fill="currentColor"
                                                                      class="bi bi-trash-fill" viewBox="0 0 16 16">
