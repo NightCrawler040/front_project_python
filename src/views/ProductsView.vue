@@ -1,8 +1,8 @@
 <script setup>
-import {onMounted, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import cartMethods from '../utils/cart'
 import axios from 'axios'
-import cartMethods from "@/utils/cart";
 
 const isLoaded = ref(false)
 const products = ref([])
@@ -10,39 +10,43 @@ const route = useRoute()
 const pages = ref(0)
 
 const fetchProducts = async () => {
-    isLoaded.value = false
-    const product_req = await axios.get('http://localhost:8000/api/products', {
-        params: {
-            ...route.query,
-            category: route.query.category || 1
-        }
-    })
-    products.value = product_req.data.results
-    pages.value = product_req.data.count % 10 === 0
-        ? Math.floor(product_req.data.count / 10)
-        : Math.floor(product_req.data.count / 10) + 1
-    isLoaded.value = true
+  isLoaded.value = false
+  const product_req = await axios.get('http://localhost:8000/api/products', {
+    params: {
+      ...route.query,
+      category: route.query.category || 1
+    }
+  })
+  products.value = product_req.data.results
+  pages.value =
+    product_req.data.count % 10 === 0
+      ? Math.floor(product_req.data.count / 10)
+      : Math.floor(product_req.data.count / 10) + 1
+  isLoaded.value = true
 }
+
 const addToWishlist = async (product) => {
-    await axios.post("http://localhost:8000/api/wishlist/",{
-        product_id: product.id
+  await axios.post(
+    'http://localhost:8000/api/wishlist/',
+    {
+      product_id: product.id
     },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        }
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`
       }
-    )
+    }
+  )
 }
 
 watch(route, async () => {
-    isLoaded.value = false
-    products.value = []
-    await fetchProducts()
+  isLoaded.value = false
+  products.value = []
+  await fetchProducts()
 })
 
 onMounted(async () => {
-    await fetchProducts()
+  await fetchProducts()
 })
 </script>
 
@@ -90,9 +94,7 @@ onMounted(async () => {
                     <button class="btn btn-primary" @click="cartMethods.addToCart(product)">
                         Add to cart
                     </button>
-                    <button class="btn btn-warning" @click="addToWishlist(product)">
-                        Add to wishlist
-                    </button>
+                    <button class="btn btn-warning" @click="addToWishlist(product)">Add to wishlist</button>
                 </div>
 
             </div>

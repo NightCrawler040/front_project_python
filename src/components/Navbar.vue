@@ -45,9 +45,9 @@ const logout = () => {
                        aria-expanded="false"
                     >Products</a>
                     <ul class="dropdown-menu">
-                        <li><RouterLink :to="{ name: 'products', query: { category: 3 } }" class="dropdown-item">Laptops</RouterLink></li>
-                        <li><RouterLink :to="{ name: 'products', query: { category: 4 } }" class="dropdown-item">Phones</RouterLink></li>
-                        <li><RouterLink :to="{ name: 'products', query: { category: 5 } }" class="dropdown-item">Refrigerator</RouterLink></li>
+                        <li><RouterLink :to="{ name: 'products', query: { category: 1 } }" class="dropdown-item">Laptops</RouterLink></li>
+                        <li><RouterLink :to="{ name: 'products', query: { category: 2 } }" class="dropdown-item">Phones</RouterLink></li>
+                        <li><RouterLink :to="{ name: 'products', query: { category: 3 } }" class="dropdown-item">Refrigerator</RouterLink></li>
 <!--                        <li><RouterLink :to="{ name: 'products', query: { category: 4 } }" class="dropdown-item">Apple TV</RouterLink></li>-->
                     </ul>
                 </div>

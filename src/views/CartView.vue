@@ -31,13 +31,11 @@ onMounted(async () => {
                 <div class="col">
                     <div class="card">
                         <div class="card-body p-4">
-
-
                             <div class="row">
-
                                 <div class="col-lg-7">
-                                    <h5 class="mb-3"><a href="#!" class="text-body"><i
-                                            class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping</a></h5>
+                                  <h5 class="mb-3">
+                                    <RouterLink to="/products" class="text-body"><i
+                                      class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping</RouterLink></h5>
                                     <hr>
 
                                     <div class="d-flex justify-content-between align-items-center mb-4">
