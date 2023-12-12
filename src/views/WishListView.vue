@@ -1,38 +1,69 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import cartMethods from "@/utils/cart";
+import wishListMethods from '../utils/wishlist'
 
-const cart = ref([])
+const wishList = ref([])
 const isLoaded = ref(false)
 
-const getWishList = async () => {
-  isLoaded.value = false
-  const response = await axios.get('http://localhost:8000/api/wishlist/', {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('access_token')}`
+const fetchWishList = async () => {
+  isLoaded.value = false;
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      throw new Error("Access token is not available");
     }
-  })
-  response.data.map(async (product) => {
-    const { data } = await axios.get('http://localhost:8000/api/products/' + product)
-    cart.value.push(data)
-  })
-  console.log(cart.value);
-  isLoaded.value = true
-}
+
+    const response = await axios.get("http://localhost:8000/api/wishlist/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!Array.isArray(response.data)) {
+      throw new Error("Unexpected server response format");
+    }
+
+    const productRequests = response.data.map((product) =>
+      axios.get(`http://localhost:8000/api/products/${product}`).catch((error) => {
+        console.error(`Error fetching product ${product}:`, error);
+        return null;
+      })
+    );
+    const productResponses = (await Promise.all(productRequests)).filter(Boolean);
+
+    wishList.value = productResponses.map((response) => response.data);
+    isLoaded.value = true;
+  } catch (error) {
+    console.error("Error fetching WishList:", error);
+
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+      console.error("Response headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Request setup error:", error.message);
+    }
+
+    isLoaded.value = true;
+  }
+};
+
 
 const removeItem = (id) => {
-  cartMethods.removeFromCartById(id);
-  cart.value = cartMethods.getCart();
+  wishListMethods.removeFromWishListById(id);
+  wishList.value = wishListMethods.getWishList();
 }
 
-const clearCart = () => {
-  cartMethods.clearCart();
-  cart.value = cartMethods.getCart();
+const clearWishLis = () => {
+  wishListMethods.clearWishList();
+  wishList.value = wishListMethods.getWishList();
 }
 
 onMounted(async () => {
-  await getWishList();
+  await fetchWishList();
 })
 </script>
 
@@ -52,48 +83,47 @@ onMounted(async () => {
 
                   <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                      <p class="mb-1">Shopping cart</p>
+                      <p class="mb-1">Shopping WishList</p>
                     </div>
                     <div>
-                      <div v-if="cart.length > 0">
-                        <button @click="clearCart()" style="border: none;">Clear cart</button>
+                      <div v-if="wishList.length > 0">
+                        <button @click="clearWishLis()" style="border: none;">Clear wishlist</button>
                       </div>
                     </div>
                   </div>
-                  <div v-if="cart.length === 0">
-                    <h3>Cart is empty</h3>
-                  </div>
-                  <div v-for="item in cart" :key="item.id">
-                    <div class="card mb-3">
-                      <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                          <div class="d-flex flex-row align-items-center">
-                            <div>
-                              <img :src="item.image" class="img-fluid rounded-3" :alt="item.title" style="width: 65px" />
-                            </div>
-                            <div class="ms-3 ">
-                              <RouterLink :to="'products/' + item.id"><h6 >{{ item.title }}</h6> </RouterLink>
-                            </div>
-                          </div>
-                          <div class="d-flex flex-row align-items-center">
-                            <div style="width: 80px;">
-                              <h6 class="mb-0">{{item.price}}₸</h6>
-                            </div>
-                            <button @click="removeItem(item.id)">
-                              <i class="bi bi-trash-fill ">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16"
-                                     height="16" fill="currentColor"
-                                     class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                  <path
-                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                                </svg>
-                              </i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+  <div v-if="wishList.length === 0">
+    <h3>WishList is empty</h3>
+  </div>
+  <div v-for="(item, index) in wishList" :key="item.id || index">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div class="d-flex flex-row align-items-center">
+            <div>
+              <img :src="item.image" class="img-fluid rounded-3" :alt="item.title" style="width: 65px" />
+            </div>
+            <div class="ms-3 ">
+              <RouterLink :to="'products/' + item.id"><h6 >{{ item.title }}</h6> </RouterLink>
+            </div>
+          </div>
+          <div class="d-flex flex-row align-items-center">
+            <div style="width: 80px;">
+              <h6 class="mb-0">{{item.price}}₸</h6>
+            </div>
+    <button @click="removeItem(item.id)">
+      <i class="bi bi-trash-fill">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-trash-fill" viewBox="0 0 16 16">
+          <path
+            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+        </svg>
+      </i>
+    </button>
+  </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
                 </div>
 
@@ -124,9 +154,9 @@ onMounted(async () => {
                         </div>
 
                         <div class="form-outline form-white mb-4">
-                          <input type="text" id="typeText" class="form-control form-control-lg" size="17"
+                          <input type="text" id="typeText1" class="form-control form-control-lg" size="17"
                                  placeholder="1234 5678 9012 3457" minlength="19" maxlength="19" />
-                          <label class="form-label" for="typeText">Card Number</label>
+                          <label class="form-label" for="typeText1">Card Number</label>
                         </div>
 
                         <div class="row mb-4">
@@ -152,7 +182,7 @@ onMounted(async () => {
 
                       <div class="d-flex justify-content-between">
                         <p class="mb-2">Subtotal</p>
-                        <p class="mb-2">{{cartMethods.getCartTotal()}} ₸</p>
+                        <p class="mb-2">{{wishListMethods.getWishTotal()}} ₸</p>
                       </div>
 
                       <div class="d-flex justify-content-between">
@@ -162,7 +192,7 @@ onMounted(async () => {
 
                       <div class="d-flex justify-content-between mb-4">
                         <p class="mb-2">Total(Incl. taxes)</p>
-                        <p class="mb-2">{{cartMethods.getCartTotal() + 100}} ₸</p>
+                        <p class="mb-2">{{wishListMethods.getWishTotal() + 100}} ₸</p>
                       </div>
 
                       <button type="button" class="btn btn-info btn-block btn-lg">
@@ -176,7 +206,7 @@ onMounted(async () => {
                                                         </svg>
                                                     </i></span>&nbsp;&nbsp;
 
-                          <span>{{cartMethods.getCartTotal() + 100}} ₸</span>
+                          <span>{{wishListMethods.getWishTotal() + 100}} ₸</span>
                         </div>
                       </button>
                     </div>
@@ -190,12 +220,3 @@ onMounted(async () => {
     </div>
   </section>
 </template>
-
-
-
-<style>
-@media (min-width: 1025px) {
-  .h-custom {
-    height: 100vh !important;
-  }
-}</style>

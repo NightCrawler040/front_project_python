@@ -1,6 +1,7 @@
 <script setup>
 import axios from 'axios'
 import { ref } from 'vue'
+import router from "@/router";
 const user = ref({
   email: '',
   password: ''
@@ -13,7 +14,7 @@ const loging = async () => {
   })
   localStorage.setItem('access_token', response.data.access)
   localStorage.setItem('refresh_token', response.data.refresh)
-  // this.$router.push('/')
+  await router.push('/')
 }
 </script>
 

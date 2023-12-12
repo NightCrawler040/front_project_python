@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import cartMethods from '../utils/cart'
 import axios from 'axios'
+import wishlist from "@/utils/wishlist";
 
 const isLoaded = ref(false)
 const products = ref([])
@@ -23,20 +24,6 @@ const fetchProducts = async () => {
       ? Math.floor(product_req.data.count / 10)
       : Math.floor(product_req.data.count / 10) + 1
   isLoaded.value = true
-}
-
-const addToWishlist = async (product) => {
-  await axios.post(
-    'http://localhost:8000/api/wishlist/',
-    {
-      product_id: product.id
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access_token')}`
-      }
-    }
-  )
 }
 
 watch(route, async () => {
@@ -77,10 +64,10 @@ onMounted(async () => {
                 </li>
             </ul>
         </div>
-        <div v-if="isLoaded" class="row row-cols-4 g-2">
+      <div v-if="isLoaded" class="row row-cols-30 g-30" style="padding: 20px 0;">
             <div
-                    class="card card-hover py-5 text-center container"
-                    style="width: 17%"
+                    class="card card-hover py-0 text-center container"
+                    style="width: 30%"
                     v-for="product in products"
                     :key="product.id"
             >
@@ -89,12 +76,12 @@ onMounted(async () => {
                 </RouterLink>
 
                 <div class="card-body">
-                    <h5 class="card-title">{{ product.title }}</h5>
-                    <p class="card-text">{{ product.price }}</p>
+                  <h5 class="card-title">{{ product.title.length > 77 ? product.title.slice(0, 77) + '...' : product.title }}</h5>
+                    <p class="card-text">{{ product.price }} тг</p>
                     <button class="btn btn-primary" @click="cartMethods.addToCart(product)">
                         Add to cart
                     </button>
-                    <button class="btn btn-warning" @click="addToWishlist(product)">Add to wishlist</button>
+                    <button class="btn btn-warning" @click="wishlist.addToWishlist(product)">Add to wishlist</button>
                 </div>
 
             </div>
@@ -117,6 +104,6 @@ onMounted(async () => {
 
 <style scoped>
 .card-hover:hover {
-    box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
+    box-shadow: 0 0 50px rgba(33, 33, 33, 0.2);
 }
 </style>

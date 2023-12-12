@@ -1,8 +1,38 @@
 <script setup>
-const logout = () => {
+import router from "@/router";
+import axios from "axios";
+import {onMounted, ref} from "vue";
+
+const logout = async () => {
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
+  await router.push('/')
+
 }
+
+const isLoggedIn = ref(false);
+const Loggingas = async () => {
+  try {
+    const response = await axios.get(
+      'http://localhost:8000/api/wishlist/',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      },
+    );
+
+    // Если сервер возвращает статус 200, возвращаем true
+    isLoggedIn.value = response.status === 200;
+  } catch (error) {
+    // Если произошла ошибка при выполнении запроса, возвращаем false
+    console.error(error);
+    isLoggedIn.value = false;
+  }
+}// нужно обновить страницу, чтобы увидеть изменения
+
+onMounted(Loggingas);
+
 </script>
 
 <template>
@@ -54,8 +84,7 @@ const logout = () => {
             </li>
           <li><RouterLink to="/about" class="nav-link px-2 text-white">About</RouterLink></li>
           <li><RouterLink to="/cart" class="nav-link px-2 text-white">Cart</RouterLink></li>
-          <li><RouterLink to="/wishlist" class="nav-link px-2 text-white">Wishlist</RouterLink></li>
-
+          <li v-if="isLoggedIn"><RouterLink to="/wishlist" class="nav-link px-2 text-white">Wishlist</RouterLink></li>
         </ul>
 
         <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">

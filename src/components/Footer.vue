@@ -1,4 +1,29 @@
 <script setup>
+import {onMounted, ref} from "vue";
+import axios from "axios";
+
+const isLoggedIn = ref(false);
+const Loggingas = async () => {
+  try {
+    const response = await axios.get(
+      'http://localhost:8000/api/wishlist/',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      },
+    );
+
+    // Если сервер возвращает статус 200, возвращаем true
+    isLoggedIn.value = response.status === 200;
+  } catch (error) {
+    // Если произошла ошибка при выполнении запроса, возвращаем false
+    console.error(error);
+    isLoggedIn.value = false;
+  }
+}// нужно обновить страницу, чтобы увидеть изменения
+
+onMounted(Loggingas);
 </script>
 
 <template>
@@ -14,7 +39,8 @@
               <li class="nav-item mb-2"><RouterLink to="/about" class="nav-link p-0 text-muted">About</RouterLink></li>
               <li class="nav-item mb-2"><RouterLink to="/products" class="nav-link p-0 text-muted">Products</RouterLink></li>
               <li class="nav-item mb-2"><RouterLink to="/cart" class="nav-link p-0 text-muted">Cart</RouterLink></li>
-              <li class="nav-item mb-2"><RouterLink to="/wishlist" class="nav-link p-0 text-muted">Wishlist</RouterLink></li></ul>
+              <li v-if="isLoggedIn"><RouterLink to="/wishlist" class="nav-link px-2 text-white">Wishlist</RouterLink></li>
+            </ul>
 
           </div>
 
